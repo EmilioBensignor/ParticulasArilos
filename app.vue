@@ -6,6 +6,37 @@
       <button>{{ buttonText }}</button>
     </div>
     <PomegranateCanvas :maxWidth="1200" />
+    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Rem autem vero amet. Fugiat blanditiis illo repellat voluptate, tempora ut omnis impedit? Similique voluptates a accusamus harum, ab velit ipsum dolores?</p>
+    <div class="canvas-container">
+      <h1>{{ title }}</h1>
+      <p>{{ subtitle }}</p>
+      <button>{{ buttonText }}</button>
+    </div>
+    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Rem autem vero amet. Fugiat blanditiis illo repellat voluptate, tempora ut omnis impedit? Similique voluptates a accusamus harum, ab velit ipsum dolores?</p>
+    <div class="canvas-container">
+      <h1>{{ title }}</h1>
+      <p>{{ subtitle }}</p>
+      <button>{{ buttonText }}</button>
+    </div>
+    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Rem autem vero amet. Fugiat blanditiis illo repellat voluptate, tempora ut omnis impedit? Similique voluptates a accusamus harum, ab velit ipsum dolores?</p>
+    <div class="canvas-container">
+      <h1>{{ title }}</h1>
+      <p>{{ subtitle }}</p>
+      <button>{{ buttonText }}</button>
+    </div>
+    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Rem autem vero amet. Fugiat blanditiis illo repellat voluptate, tempora ut omnis impedit? Similique voluptates a accusamus harum, ab velit ipsum dolores?</p>
+    <div class="canvas-container">
+      <h1>{{ title }}</h1>
+      <p>{{ subtitle }}</p>
+      <button>{{ buttonText }}</button>
+    </div>
+    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Rem autem vero amet. Fugiat blanditiis illo repellat voluptate, tempora ut omnis impedit? Similique voluptates a accusamus harum, ab velit ipsum dolores?</p>
+    <div class="canvas-container">
+      <h1>{{ title }}</h1>
+      <p>{{ subtitle }}</p>
+      <button>{{ buttonText }}</button>
+    </div>
+
   </div>
 </template>
 
