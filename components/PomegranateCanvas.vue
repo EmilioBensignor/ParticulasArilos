@@ -15,19 +15,14 @@ const canvas = ref(null)
 let particles = []
 const cursor = { x: 9999, y: 9999 }
 let animationFrameId = null
-let isInView = false
-let mouseIsOver = false
+let ctx = null
 
-// Configuración
+// Configuración simplificada
 const CANVAS_WIDTH = 1920
 const CANVAS_HEIGHT = 300
-const VISIBLE_HEIGHT = 300
 const BASE_PARTICLE_SIZE = 8
-const NUM_COLS = 80
+const NUM_COLS = 60 // Reducido para mejor performance
 const NUM_ROWS = 6
-const PATH_WIDTH = 180 // Ligeramente más estrecho para mejor control
-const PUSH_STRENGTH = 1.5 // Suavizado para mejor control
-const RETURN_SPEED = 0.015 // Velocidad de retorno ajustada
 
 const pomegranateColors = [
     'rgba(188, 32, 38, 0.9)',    // Rojo rubí
@@ -38,23 +33,18 @@ const pomegranateColors = [
 ]
 
 class Particle {
-    constructor({ x, y, radius, color, minDist, pushFactor, pullFactor, dampFactor }) {
+    constructor({ x, y, radius, color }) {
         this.x = x
         this.y = y
         this.ix = x
         this.iy = y
-        this.ax = 0
-        this.ay = 0
         this.vx = 0
         this.vy = 0
         this.radius = radius
         this.color = color
-        this.minDist = minDist
-        this.pushFactor = pushFactor
-        this.pullFactor = pullFactor
-        this.dampFactor = dampFactor
-        this.targetX = x
-        this.targetY = y
+        this.pushFactor = 0.8
+        this.returnFactor = 0.08
+        this.friction = 0.85
 
         this.scaleX = 0.9 + Math.random() * 0.2
         this.scaleY = 0.9 + Math.random() * 0.2
@@ -62,84 +52,57 @@ class Particle {
     }
 
     update() {
-        // Reset aceleración
-        this.ax = 0
-        this.ay = 0
+        // Calcular distancia al cursor
+        const dx = this.x - cursor.x
+        const dy = this.y - cursor.y
+        const distance = Math.sqrt(dx * dx + dy * dy)
+        const minDistance = 120 // Radio de influencia
 
-        if (isInView) {
-            // Efecto del mouse
-            const dx = this.x - cursor.x
-            const dy = this.y - cursor.y
-            const dd = Math.sqrt(dx * dx + dy * dy)
-
-            if (dd < this.minDist && mouseIsOver) {
-                // Efecto repulsivo del mouse
-                const force = (1 - dd / this.minDist) * this.pushFactor
-                this.ax += (dx / dd) * force
-                this.ay += (dy / dd) * force
-
-                // Crear efecto de camino
-                const distFromCenterX = Math.abs(this.x - CANVAS_WIDTH / 2)
-                if (distFromCenterX < PATH_WIDTH) {
-                    const direction = this.x < CANVAS_WIDTH / 2 ? -1 : 1
-                    this.ax += direction * PUSH_STRENGTH * (1 - distFromCenterX / PATH_WIDTH)
-                }
-            }
+        // Aplicar fuerza repulsiva si está cerca del cursor
+        if (distance < minDistance) {
+            const force = (minDistance - distance) / minDistance
+            this.vx += (dx / distance) * force * this.pushFactor
+            this.vy += (dy / distance) * force * this.pushFactor
         }
 
-        // Fuerza de retorno a posición inicial
-        const dx = this.ix - this.x
-        const dy = this.iy - this.y
-        this.ax += dx * RETURN_SPEED
-        this.ay += dy * RETURN_SPEED
+        // Fuerza de retorno al punto inicial
+        const homeX = this.ix - this.x
+        const homeY = this.iy - this.y
+        this.vx += homeX * this.returnFactor
+        this.vy += homeY * this.returnFactor
 
-        // Actualizar velocidad y posición
-        this.vx += this.ax
-        this.vy += this.ay
-        this.vx *= this.dampFactor
-        this.vy *= this.dampFactor
+        // Aplicar fricción
+        this.vx *= this.friction
+        this.vy *= this.friction
+
+        // Actualizar posición
         this.x += this.vx
         this.y += this.vy
     }
 
-    draw(context) {
-        context.save()
-        context.translate(this.x, this.y)
-        context.rotate(this.rotation)
-        context.scale(this.scaleX, this.scaleY)
+    draw() {
+        ctx.save()
+        ctx.translate(this.x, this.y)
+        ctx.rotate(this.rotation)
+        ctx.scale(this.scaleX, this.scaleY)
 
-        // Forma base del arilo
-        context.beginPath()
-        context.fillStyle = this.color
-        context.arc(0, 0, this.radius, 0, Math.PI * 2)
-        context.fill()
+        // Forma base
+        ctx.beginPath()
+        ctx.fillStyle = this.color
+        ctx.arc(0, 0, this.radius, 0, Math.PI * 2)
+        ctx.fill()
 
         // Brillo
-        const gradient = context.createRadialGradient(
+        const gradient = ctx.createRadialGradient(
             -this.radius * 0.3, -this.radius * 0.3, this.radius * 0.1,
             0, 0, this.radius
         )
         gradient.addColorStop(0, 'rgba(255, 255, 255, 0.3)')
         gradient.addColorStop(1, 'rgba(255, 255, 255, 0)')
-        context.fillStyle = gradient
-        context.fill()
+        ctx.fillStyle = gradient
+        ctx.fill()
 
-        // Textura
-        context.strokeStyle = 'rgba(120, 20, 20, 0.1)'
-        context.lineWidth = 0.5
-        for (let i = 0; i < 3; i++) {
-            context.beginPath()
-            context.arc(
-                Math.random() * this.radius * 0.4,
-                Math.random() * this.radius * 0.4,
-                this.radius * 0.4,
-                0,
-                Math.PI * 2
-            )
-            context.stroke()
-        }
-
-        context.restore()
+        ctx.restore()
     }
 }
 
@@ -147,50 +110,40 @@ const initParticles = () => {
     const canvasEl = canvas.value
     if (!canvasEl) return
 
+    ctx = canvasEl.getContext('2d')
     const particleRadius = (BASE_PARTICLE_SIZE * CANVAS_WIDTH) / 1000
-    const randomPosition = particleRadius * 2
+    const randomOffset = particleRadius
 
     particles = []
-
-    const verticalOffset = (CANVAS_HEIGHT - VISIBLE_HEIGHT) / 2
-    const verticalMargin = particleRadius * 3
-    const usableHeight = VISIBLE_HEIGHT - (verticalMargin * 2)
+    const marginY = particleRadius * 2
+    const usableHeight = CANVAS_HEIGHT - (marginY * 2)
     const rowSpacing = usableHeight / (NUM_ROWS - 1)
+    const colSpacing = CANVAS_WIDTH / (NUM_COLS - 1)
 
     for (let i = 0; i < NUM_ROWS; i++) {
         for (let j = 0; j < NUM_COLS; j++) {
-            const x = (j * (CANVAS_WIDTH / (NUM_COLS - 1)))
-            const y = verticalOffset + verticalMargin + (i * rowSpacing)
+            const x = j * colSpacing
+            const y = marginY + (i * rowSpacing)
 
-            const particle = new Particle({
-                x: x + (Math.random() * randomPosition * 2 - randomPosition),
-                y: y + (Math.random() * randomPosition * 2 - randomPosition),
+            particles.push(new Particle({
+                x: x + (Math.random() * randomOffset * 2 - randomOffset),
+                y: y + (Math.random() * randomOffset * 2 - randomOffset),
                 radius: particleRadius * (0.8 + Math.random() * 0.4),
-                color: pomegranateColors[Math.floor(Math.random() * pomegranateColors.length)],
-                minDist: (CANVAS_WIDTH / 20) + Math.random() * (CANVAS_WIDTH / 40),
-                pushFactor: 0.03 + Math.random() * 0.04,
-                pullFactor: 0.01,
-                dampFactor: 0.92 + Math.random() * 0.01
-            })
-
-            particles.push(particle)
+                color: pomegranateColors[Math.floor(Math.random() * pomegranateColors.length)]
+            }))
         }
     }
 }
 
 const animate = () => {
-    const canvasEl = canvas.value
-    if (!canvasEl) return
+    if (!ctx) return
 
-    const context = canvasEl.getContext('2d')
-    if (!context) return
-
-    context.fillStyle = 'white'
-    context.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+    ctx.fillStyle = 'white'
+    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
 
     particles.forEach(particle => {
         particle.update()
-        particle.draw(context)
+        particle.draw()
     })
 
     animationFrameId = requestAnimationFrame(animate)
@@ -208,47 +161,13 @@ const updateCursorPosition = (clientX, clientY) => {
     cursor.y = (clientY - rect.top) * scaleY
 }
 
-let observer = null
-
-const setupIntersectionObserver = () => {
-    if (!container.value) return
-
-    observer = new IntersectionObserver(
-        (entries) => {
-            const [entry] = entries
-            isInView = entry.isIntersecting
-            if (!isInView) {
-                mouseIsOver = false
-                cursor.x = 9999
-                cursor.y = 9999
-            }
-        },
-        {
-            threshold: 0.2, // 20% del elemento visible
-            rootMargin: '50px' // Margen adicional para detectar antes
-        }
-    )
-
-    observer.observe(container.value)
-}
-
-const handleMouseMove = (e) => {
-    if (!isInView) return
+const handleInteraction = (e) => {
     e.preventDefault()
-    mouseIsOver = true
-    updateCursorPosition(e.clientX, e.clientY)
+    const point = e.touches ? e.touches[0] : e
+    updateCursorPosition(point.clientX, point.clientY)
 }
 
-const handleTouchMove = (e) => {
-    if (!isInView) return
-    e.preventDefault()
-    mouseIsOver = true
-    const touch = e.touches[0]
-    updateCursorPosition(touch.clientX, touch.clientY)
-}
-
-const handleMouseLeave = () => {
-    mouseIsOver = false
+const handleEnd = () => {
     cursor.x = 9999
     cursor.y = 9999
 }
@@ -266,17 +185,16 @@ const resizeCanvas = () => {
 onMounted(() => {
     nextTick(() => {
         resizeCanvas()
-        setupIntersectionObserver()
         window.addEventListener('resize', resizeCanvas)
 
         const canvasEl = canvas.value
         if (canvasEl) {
-            canvasEl.addEventListener('mousemove', handleMouseMove, { passive: false })
-            canvasEl.addEventListener('mouseenter', () => mouseIsOver = true)
-            canvasEl.addEventListener('mouseleave', handleMouseLeave)
-            canvasEl.addEventListener('touchmove', handleTouchMove, { passive: false })
-            canvasEl.addEventListener('touchend', handleMouseLeave)
-            canvasEl.addEventListener('touchcancel', handleMouseLeave)
+            // Unificamos el manejo de eventos touch y mouse
+            canvasEl.addEventListener('mousemove', handleInteraction, { passive: false })
+            canvasEl.addEventListener('touchmove', handleInteraction, { passive: false })
+            canvasEl.addEventListener('mouseleave', handleEnd)
+            canvasEl.addEventListener('touchend', handleEnd)
+            canvasEl.addEventListener('touchcancel', handleEnd)
         }
 
         animate()
@@ -285,18 +203,14 @@ onMounted(() => {
 
 onUnmounted(() => {
     window.removeEventListener('resize', resizeCanvas)
-    if (observer) {
-        observer.disconnect()
-    }
 
     const canvasEl = canvas.value
     if (canvasEl) {
-        canvasEl.removeEventListener('mousemove', handleMouseMove)
-        canvasEl.removeEventListener('mouseenter', () => mouseIsOver = true)
-        canvasEl.removeEventListener('mouseleave', handleMouseLeave)
-        canvasEl.removeEventListener('touchmove', handleTouchMove)
-        canvasEl.removeEventListener('touchend', handleMouseLeave)
-        canvasEl.removeEventListener('touchcancel', handleMouseLeave)
+        canvasEl.removeEventListener('mousemove', handleInteraction)
+        canvasEl.removeEventListener('touchmove', handleInteraction)
+        canvasEl.removeEventListener('mouseleave', handleEnd)
+        canvasEl.removeEventListener('touchend', handleEnd)
+        canvasEl.removeEventListener('touchcancel', handleEnd)
     }
     if (animationFrameId) {
         cancelAnimationFrame(animationFrameId)
