@@ -18,7 +18,7 @@ let animationFrameId = null
 
 // Configuración fija para 1920px
 const CANVAS_WIDTH = 1920
-const CANVAS_HEIGHT = 400 // Aumentamos la altura para dar más espacio
+const CANVAS_HEIGHT = 300 // Aumentamos la altura para dar más espacio
 const VISIBLE_HEIGHT = 300 // Altura visible del canvas
 const BASE_PARTICLE_SIZE = 8
 const NUM_COLS = 80
