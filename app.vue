@@ -1,12 +1,15 @@
 <template>
   <div class="page-container">
-    <div class="canvas-container">
+    <section class="canvasSection">
       <h1>{{ title }}</h1>
       <p>{{ subtitle }}</p>
-      <button>{{ buttonText }}</button>
-    </div>
-    <!-- <PomegranateCanvas :maxWidth="1200" /> -->
-    <ArilosCanvas :maxWidth="1200" />
+      <div class="buttonContainer">
+        <button>{{ buttonText }}</button>
+      </div>
+      <!-- <PomegranateCanvas class="arilosCanvas" :maxWidth="1200" /> -->
+      <ArilosCanvas class="arilosCanvas" :maxWidth="1200" />
+    </section>
+
     <div>
       <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Rem autem vero amet. Fugiat blanditiis illo repellat
         voluptate, tempora ut omnis impedit? Similique voluptates a accusamus harum, ab velit ipsum dolores?</p>
@@ -63,25 +66,64 @@ body {
 </style>
 
 <style scoped>
-.canvas-container {
+.page-container {
+  min-height: 100vh;
+}
+
+.canvasSection {
+  position: relative;
+  height: 50vh;
+}
+
+.canvasSection>h1, .canvasSection>p, .canvasSection>.buttonContainer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  margin: 0;
+  width: max-content;
+  margin: 0 auto;
+}
+
+.hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2;
+  padding: 3rem;
+  border-radius: 8px;
+  max-width: 600px;
   text-align: center;
-  padding: 2rem;
+}
+
+.canvasSection h1 {
+  top: 6rem;
   background: white;
-}
-
-h1 {
-  margin-bottom: 1rem;
-  font-size: 2rem;
+  border-radius: 999px;
+  padding: 2rem;
+  font-size: 2.5rem;
   font-weight: bold;
+  color: #2D3748;
 }
 
-p {
-  padding: 0 2rem;
-  margin-bottom: 2rem;
+.canvasSection p {
+  top: 11.5rem;
+  color: #4A5568;
+  background: white;
+  border-radius: 0 0 40px 40px;
+  padding: 1rem 2rem;
 }
 
-button {
-  margin-top: 2rem;
+.buttonContainer {
+  top: 14rem;
+  background: white;
+  border-radius: 0 0 40px 40px;
+  padding: 1rem 4rem 2rem 4rem;
+}
+
+.canvasSection button {
+  margin-top: 1rem;
   padding: 0.75rem 1.5rem;
   font-size: 1rem;
   background-color: #bc2026;
@@ -92,7 +134,16 @@ button {
   transition: background-color 0.3s;
 }
 
-button:hover {
+.hero button:hover {
   background-color: #a51920;
+}
+
+.arilosCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
 }
 </style>

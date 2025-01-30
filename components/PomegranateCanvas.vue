@@ -291,10 +291,12 @@ onUnmounted(() => {
 <style scoped>
 .canvas-wrapper {
     width: 100%;
-    height: 300px;
-    position: relative;
-    background: white;
+    height: 450px;
+    position: absolute;
+    top: 0;
+    background: transparent;
     overflow: hidden;
+    pointer-events: none;
 }
 
 canvas {
@@ -302,9 +304,9 @@ canvas {
     top: 50%;
     left: 0;
     width: 100%;
-    height: 300px;
+    height: 450px;
     transform: translateY(-50%);
     object-fit: cover;
-    touch-action: none;
+    pointer-events: auto;
 }
 </style>
