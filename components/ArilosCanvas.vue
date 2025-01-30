@@ -17,11 +17,11 @@ const cursor = { x: 9999, y: 9999 }
 let animationFrameId = null
 
 const CANVAS_WIDTH = 2000
-const CANVAS_HEIGHT = 350
+const CANVAS_HEIGHT = 500
 const VISIBLE_HEIGHT = 350
 const BASE_PARTICLE_SIZE = 6
-const NUM_COLS = 80
-const NUM_ROWS = 6
+const NUM_COLS = 40
+const NUM_ROWS = 5
 const HORIZONTAL_MARGIN = 50
 
 class Particle {
@@ -47,7 +47,6 @@ class Particle {
         // Array con las rutas de las imágenes
         const ariloImages = [
             '/images/Arilo.png',
-            '/images/Arilo-2.png',
             '/images/Arilo-3.png'
         ]
         // Seleccionar una imagen aleatoria
