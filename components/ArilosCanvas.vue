@@ -20,12 +20,12 @@ const CANVAS_WIDTH = 2000
 const CANVAS_HEIGHT = 600
 const VISIBLE_HEIGHT = 450
 const BASE_PARTICLE_SIZE = 5.5
-const SIDE_COLS = 14 // Menos columnas para los laterales
+const SIDE_COLS = 30 // Menos columnas para los laterales
 const BOTTOM_COLS = 14 // Mantener columnas para abajo
 const SIDE_ROWS = 8 // Más filas para los laterales
 const BOTTOM_ROWS = 2 // Menos filas para abajo
 const SIDE_MARGIN = 50 // Margen lateral
-const CENTER_GAP = 0 // Espacio en el centro para el hero
+const CENTER_GAP = 1000 // Espacio en el centro para el hero
 
 class Particle {
     constructor({ x, y, radius, minDist, pushFactor, pullFactor, dampFactor }) {

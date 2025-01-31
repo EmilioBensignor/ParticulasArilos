@@ -1,10 +1,12 @@
 <template>
   <div class="page-container">
     <section class="canvasSection">
-      <h1>{{ title }}</h1>
-      <p>{{ subtitle }}</p>
-      <div class="buttonContainer">
-        <button>{{ buttonText }}</button>
+      <div class="hero">
+        <h1>{{ title }}</h1>
+        <p>{{ subtitle }}</p>
+        <div class="buttonContainer">
+          <button>{{ buttonText }}</button>
+        </div>
       </div>
       <!-- <PomegranateCanvas class="arilosCanvas" :maxWidth="1200" /> -->
       <ArilosCanvas class="arilosCanvas" :maxWidth="1200" />
@@ -75,7 +77,9 @@ body {
   height: 50vh;
 }
 
-.canvasSection>h1, .canvasSection>p, .canvasSection>.buttonContainer {
+/* .canvasSection>h1,
+.canvasSection>p,
+.canvasSection>.buttonContainer {
   position: absolute;
   left: 0;
   right: 0;
@@ -83,43 +87,35 @@ body {
   margin: 0;
   width: max-content;
   margin: 0 auto;
-}
+} */
 
 .hero {
-  position: relative;
+  position: absolute;
   display: flex;
   flex-direction: column;
   align-items: center;
   z-index: 2;
-  padding: 3rem;
+  border-radius: 999px;
+  padding: 1rem;
   border-radius: 8px;
   max-width: 600px;
   text-align: center;
+  margin: 0 auto;
+  left: 0;
+  top: 8rem;
+  right: 0;
+  /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
 }
 
 .canvasSection h1 {
-  top: 6rem;
-  background: white;
-  border-radius: 999px;
-  padding: 2rem;
   font-size: 2.5rem;
   font-weight: bold;
   color: #2D3748;
+  margin: 1rem 0;
 }
 
 .canvasSection p {
-  top: 11.5rem;
   color: #4A5568;
-  background: white;
-  border-radius: 0 0 40px 40px;
-  padding: 1rem 2rem;
-}
-
-.buttonContainer {
-  top: 14rem;
-  background: white;
-  border-radius: 0 0 40px 40px;
-  padding: 1rem 4rem 2rem 4rem;
 }
 
 .canvasSection button {
